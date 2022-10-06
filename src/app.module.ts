@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 
 import { IngredientsModule } from './ingredients/ingredients.module';
 import { RecipesModule } from './recipes/recipes.module';
+import { CupboardsModule } from './cupboards/cupboards.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { RecipesModule } from './recipes/recipes.module';
 
     IngredientsModule,
     RecipesModule,
+    CupboardsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

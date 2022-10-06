@@ -1,16 +1,21 @@
 import {
   Body, Controller, Delete, Get, Param, Post, Put
 } from '@nestjs/common';
-import { CreateDto, UpdateDto } from './recipes.dto';
-import { RecipesService } from './recipes.service';
+import { CreateDto, UpdateDto } from './cupboards.dto';
+import { CupboardsService } from './cupboards.service';
 
-@Controller('recipes')
-export class RecipesController {
-  constructor(private readonly service: RecipesService) {}
+@Controller('cupboards')
+export class CupboardsController {
+  constructor(private readonly service: CupboardsService) {}
 
   @Get()
   async index() {
     return await this.service.findAll();
+  }
+
+  @Get('user/:id')
+  async getById(@Param('id') id) {
+    return await this.service.findAllByUser(id);
   }
 
   /* @Get(':id')
