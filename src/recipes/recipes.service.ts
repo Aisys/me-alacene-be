@@ -6,10 +6,58 @@ import { CreateDto, UpdateDto } from './recipes.dto';
 
 @Injectable()
 export class RecipesService {
-  constructor(@InjectModel(Recipes.name) private readonly model: Model<RecipesDocument>) {}
+  constructor(
+    @InjectModel(Recipes.name) private readonly model: Model<RecipesDocument>,
+  ) {}
 
   async findAll(): Promise<Recipes[]> {
-    return await this.model.find().exec();
+    const aggregate = [
+      {
+        $unwind: {
+          path: '$ingredients',
+        },
+      },
+      {
+        $lookup: {
+          from: 'ingredients',
+          let: { searchId: { $toObjectId: '$ingredients.ingredient' } },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ['$_id', { $toObjectId: '$$searchId' }] },
+              },
+            },
+          ],
+          as: 'ingredients.ingredient',
+        },
+      },
+      {
+        $unwind: {
+          path: '$ingredients.ingredient',
+        },
+      },
+      {
+        $group: {
+          _id: {
+            "_id": "$_id",
+            "name": "$name",
+            "description": "$description",
+            "cookingTimeMin": "$cookingTimeMin",
+            "portions": "$portions",
+            "steps": "$steps"
+          },
+          ingredients: { $push: '$ingredients' },
+        },
+      },
+      // {
+      //   $match: {
+      //     $expr: { $eq: ['$_id', { $toObjectId: idUser }] },
+      //   },
+      // }
+      // { $skip: 6 },
+      // { $limit : 2 }
+    ];
+    return await this.model.aggregate(aggregate).exec();
   }
 
   async findOne(id: string): Promise<Recipes> {
@@ -30,5 +78,4 @@ export class RecipesService {
   async delete(id: string): Promise<Recipes> {
     return await this.model.findByIdAndDelete(id).exec();
   }
-
 }

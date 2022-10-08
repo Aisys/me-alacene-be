@@ -16,11 +16,6 @@ export class CupboardsService {
   }
 
   async findAllByUser(idUser): Promise<any[]> {
-    console.log('')
-    console.log('')
-    console.log('Buscaría ABEERRR', idUser)
-    console.log('')
-    console.log('')
     const aggregate = [
       {
         $unwind: {
