@@ -13,6 +13,11 @@ export class RecipesController {
     return await this.service.findAll();
   }
 
+  @Get('cupboardId/:id')
+  async getByCupboardId(@Param('id') id) {
+    return await this.service.findAllByCupboardId(id);
+  }
+
   /* @Get(':id')
   async find(@Param('id') id: string) {
     return await this.service.findOne(id);

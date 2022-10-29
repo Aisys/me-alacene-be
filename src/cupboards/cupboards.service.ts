@@ -15,44 +15,80 @@ export class CupboardsService {
     return await this.model.find().exec();
   }
 
-  async findAllByUser(idUser): Promise<any[]> {
-    const aggregate = [
+  async findAllByUserOnlyName(idUser): Promise<any[]> {
+    let aggregate = [
       {
         $unwind: {
-          path: "$ingredients",
+          path: '$ingredients',
         },
       },
       {
         $lookup: {
-          from: "ingredients",
-          let: { searchId: { $toObjectId: "$ingredients.ingredient" } },
+          from: 'ingredients',
+          let: { searchId: { $toObjectId: '$ingredients.ingredient' } },
           pipeline: [
             {
               $match: {
-                $expr: { $eq: ["$_id", { $toObjectId: "$$searchId" }] },
+                $expr: { $eq: ['$_id', { $toObjectId: '$$searchId' }] },
               },
             },
           ],
-          as: "ingredients.ingredient",
+          as: 'ingredients.ingredient',
         },
       },
       {
         $unwind: {
-          path: "$ingredients.ingredient",
+          path: '$ingredients.ingredient',
         },
       },
       {
         $match: {
           $expr: { $eq: ['$_id', { $toObjectId: idUser }] },
         },
+      },
+      {
+        $project: {
+          ingredient: '$ingredients.ingredient.name'
+        }
       }
-      // { $skip: 6 },
-      // { $limit : 2 }
     ];
     return await this.model.aggregate(aggregate).exec();
   }
 
-
+  async findAllByUser(idUser): Promise<any[]> {
+    let aggregate = [
+      {
+        $unwind: {
+          path: '$ingredients',
+        },
+      },
+      {
+        $lookup: {
+          from: 'ingredients',
+          let: { searchId: { $toObjectId: '$ingredients.ingredient' } },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ['$_id', { $toObjectId: '$$searchId' }] },
+              },
+            },
+          ],
+          as: 'ingredients.ingredient',
+        },
+      },
+      {
+        $unwind: {
+          path: '$ingredients.ingredient',
+        },
+      },
+      {
+        $match: {
+          $expr: { $eq: ['$_id', { $toObjectId: idUser }] },
+        },
+      },
+    ];
+    return await this.model.aggregate(aggregate).exec();
+  }
 
   async findOne(id: string): Promise<Cupboards> {
     return await this.model.findById(id).exec();
@@ -65,10 +101,7 @@ export class CupboardsService {
     }).save();
   }
 
-  async update(
-    id: string,
-    updateCupboardsDto: UpdateDto,
-  ): Promise<Cupboards> {
+  async update(id: string, updateCupboardsDto: UpdateDto): Promise<Cupboards> {
     return await this.model.findByIdAndUpdate(id, updateCupboardsDto).exec();
   }
 

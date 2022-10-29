@@ -10,5 +10,6 @@ import { Cupboards, CupboardsSchema } from './cupboards.schema';
   imports: [
     MongooseModule.forFeature([{ name: Cupboards.name, schema: CupboardsSchema }]),
   ],
+  exports: [CupboardsService]
 })
 export class CupboardsModule {}
